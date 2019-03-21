@@ -11,26 +11,9 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class ExceptionListenerTest extends TestCase
 {
-    private function getTwig()
-    {
-        $twig = $this->getMockBuilder('\Twig_Environment')->disableOriginalConstructor()->getMock();
-        $twig->method('render')->willReturn('template content');
+    
 
-        return $twig;
-    }
-
-    private function getEventExceptionThatShouldBeCalledOnce($exception)
-    {
-        $event = $this->getMockBuilder('Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $event->method('getException')->willReturn($exception);
-        $event->method('getRequest')->willReturn(new Request());
-        $event->method('getKernel')->willReturn(new TestKernel());
-        $event->expects($this->once())->method('setResponse');
-
-        return $event;
-    }
+    
 
     public function testCatchBaseExceptions()
     {
@@ -46,17 +29,7 @@ class ExceptionListenerTest extends TestCase
         $listener->onKernelException($event);
     }
 
-    private function getEventExceptionThatShouldNotBeCalled($exception)
-    {
-        $event = $this->getMockBuilder('Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $event->method('getException')->willReturn($exception);
-        $event->method('getRequest')->willReturn(new Request());
-        $event->expects($this->never())->method('setResponse');
-
-        return $event;
-    }
+    
 
     public function testShouldNotCatchExceptionsWithSameName()
     {

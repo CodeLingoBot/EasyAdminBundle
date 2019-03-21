@@ -66,16 +66,5 @@ class RequestPostInitializeListener
      * @throws EntityNotFoundException
      * @throws \RuntimeException
      */
-    private function findCurrentItem(array $entityConfig, $itemId)
-    {
-        if (null === $manager = $this->doctrine->getManagerForClass($entityConfig['class'])) {
-            throw new \RuntimeException(\sprintf('There is no Doctrine Entity Manager defined for the "%s" class', $entityConfig['class']));
-        }
-
-        if (null === $entity = $manager->getRepository($entityConfig['class'])->find($itemId)) {
-            throw new EntityNotFoundException(['entity_name' => $entityConfig['name'], 'entity_id_name' => $entityConfig['primary_key_field_name'], 'entity_id_value' => $itemId]);
-        }
-
-        return $entity;
-    }
+    
 }

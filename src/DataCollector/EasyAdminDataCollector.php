@@ -66,16 +66,7 @@ class EasyAdminDataCollector extends DataCollector
      *
      * @return array|null
      */
-    private function getEasyAdminParameters(Request $request)
-    {
-        return [
-            'action' => $request->query->get('action'),
-            'entity' => $request->query->get('entity'),
-            'id' => $request->query->get('id'),
-            'sort_field' => $request->query->get('sortField'),
-            'sort_direction' => $request->query->get('sortDirection'),
-        ];
-    }
+    
 
     /**
      * @return bool

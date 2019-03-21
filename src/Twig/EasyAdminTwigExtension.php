@@ -167,127 +167,13 @@ class EasyAdminTwigExtension extends AbstractExtension
         }
     }
 
-    private function getTemplateParameters($entityName, $view, array $fieldMetadata, $item)
-    {
-        $fieldName = $fieldMetadata['property'];
-        $fieldType = $fieldMetadata['dataType'];
+    
 
-        $parameters = [
-            'backend_config' => $this->getBackendConfiguration(),
-            'entity_config' => $this->configManager->getEntityConfig($entityName),
-            'field_options' => $fieldMetadata,
-            'item' => $item,
-            'view' => $view,
-        ];
+    
 
-        if ($this->propertyAccessor->isReadable($item, $fieldName)) {
-            $parameters['value'] = $this->propertyAccessor->getValue($item, $fieldName);
-            $parameters['is_accessible'] = true;
-        } else {
-            $parameters['value'] = null;
-            $parameters['is_accessible'] = false;
-        }
+    
 
-        if ('image' === $fieldType) {
-            $parameters = $this->addImageFieldParameters($parameters);
-        }
-
-        if ('file' === $fieldType) {
-            $parameters = $this->addFileFieldParameters($parameters);
-        }
-
-        if ('association' === $fieldType) {
-            $parameters = $this->addAssociationFieldParameters($parameters);
-        }
-
-        // when a virtual field doesn't define it's type, consider it a string
-        if (true === $fieldMetadata['virtual'] && null === $parameters['field_options']['dataType']) {
-            $parameters['value'] = (string) $parameters['value'];
-        }
-
-        return $parameters;
-    }
-
-    private function addImageFieldParameters(array $templateParameters)
-    {
-        // add the base path only to images that are not absolute URLs (http or https) or protocol-relative URLs (//)
-        if (null !== $templateParameters['value'] && 0 === \preg_match('/^(http[s]?|\/\/)/i', $templateParameters['value'])) {
-            $templateParameters['value'] = isset($templateParameters['field_options']['base_path'])
-                ? \rtrim($templateParameters['field_options']['base_path'], '/').'/'.\ltrim($templateParameters['value'], '/')
-                : '/'.\ltrim($templateParameters['value'], '/');
-        }
-
-        $templateParameters['uuid'] = \md5($templateParameters['value']);
-
-        return $templateParameters;
-    }
-
-    private function addFileFieldParameters(array $templateParameters)
-    {
-        // add the base path only to files that are not absolute URLs (http or https) or protocol-relative URLs (//)
-        if (null !== $templateParameters['value'] && 0 === \preg_match('/^(http[s]?|\/\/)/i', $templateParameters['value'])) {
-            $templateParameters['value'] = isset($templateParameters['field_options']['base_path'])
-                ? \rtrim($templateParameters['field_options']['base_path'], '/').'/'.\ltrim($templateParameters['value'], '/')
-                : '/'.\ltrim($templateParameters['value'], '/');
-        }
-
-        $templateParameters['filename'] = $templateParameters['field_options']['filename'] ?? \basename($templateParameters['value']);
-
-        return $templateParameters;
-    }
-
-    private function addAssociationFieldParameters(array $templateParameters)
-    {
-        $targetEntityConfig = $this->configManager->getEntityConfigByClass($templateParameters['field_options']['targetEntity']);
-        // the associated entity is not managed by EasyAdmin
-        if (null === $targetEntityConfig) {
-            return $templateParameters;
-        }
-
-        $isShowActionAllowed = !\in_array('show', $targetEntityConfig['disabled_actions']);
-
-        if ($templateParameters['field_options']['associationType'] & ClassMetadata::TO_ONE) {
-            if ($this->propertyAccessor->isReadable($templateParameters['value'], $targetEntityConfig['primary_key_field_name'])) {
-                $primaryKeyValue = $this->propertyAccessor->getValue($templateParameters['value'], $targetEntityConfig['primary_key_field_name']);
-            } else {
-                $primaryKeyValue = null;
-            }
-
-            // get the string representation of the associated *-to-one entity
-            if (\method_exists($templateParameters['value'], '__toString')) {
-                $templateParameters['value'] = (string) $templateParameters['value'];
-            } elseif (null !== $primaryKeyValue) {
-                $templateParameters['value'] = \sprintf('%s #%s', $targetEntityConfig['name'], $primaryKeyValue);
-            } else {
-                $templateParameters['value'] = null;
-            }
-
-            // if the associated entity is managed by EasyAdmin, and the "show"
-            // action is enabled for the associated entity, display a link to it
-            if (null !== $targetEntityConfig && null !== $primaryKeyValue && $isShowActionAllowed) {
-                $templateParameters['link_parameters'] = [
-                    'action' => 'show',
-                    'entity' => $targetEntityConfig['name'],
-                    // casting to string is needed because entities can use objects as primary keys
-                    'id' => (string) $primaryKeyValue,
-                ];
-            }
-        }
-
-        if ($templateParameters['field_options']['associationType'] & ClassMetadata::TO_MANY) {
-            // if the associated entity is managed by EasyAdmin, and the "show"
-            // action is enabled for the associated entity, display a link to it
-            if (null !== $targetEntityConfig && $isShowActionAllowed) {
-                $templateParameters['link_parameters'] = [
-                    'action' => 'show',
-                    'entity' => $targetEntityConfig['name'],
-                    'primary_key_name' => $targetEntityConfig['primary_key_field_name'],
-                ];
-            }
-        }
-
-        return $templateParameters;
-    }
+    
 
     /**
      * Checks whether the given 'action' is enabled for the given 'entity'.

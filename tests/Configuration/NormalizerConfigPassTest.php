@@ -47,10 +47,5 @@ class NormalizerConfigPassTest extends TestCase
         $configPass->process($backendConfig);
     }
 
-    private function getServiceContainer()
-    {
-        return $this->getMockBuilder('Symfony\Component\DependencyInjection\Container')
-            ->disableOriginalConstructor()
-            ->getMock();
-    }
+    
 }

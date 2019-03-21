@@ -55,17 +55,5 @@ class Autocomplete
         ];
     }
 
-    private function processResults($entities, array $targetEntityConfig): array
-    {
-        $results = [];
-
-        foreach ($entities as $entity) {
-            $results[] = [
-                'id' => $this->propertyAccessor->getValue($entity, $targetEntityConfig['primary_key_field_name']),
-                'text' => (string) $entity,
-            ];
-        }
-
-        return $results;
-    }
+    
 }

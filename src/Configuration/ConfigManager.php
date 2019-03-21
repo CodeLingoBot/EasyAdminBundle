@@ -98,35 +98,7 @@ final class ConfigManager
      *
      * @return array
      */
-    private function doProcessConfig($backendConfig): array
-    {
-        foreach ($this->configPasses as $configPass) {
-            $backendConfig = $configPass->process($backendConfig);
-        }
+    
 
-        return $backendConfig;
-    }
-
-    private function loadBackendConfig(): array
-    {
-        if (null !== $this->backendConfig) {
-            return $this->backendConfig;
-        }
-
-        if (true === $this->debug) {
-            return $this->backendConfig = $this->doProcessConfig($this->originalBackendConfig);
-        }
-
-        $cachedBackendConfig = $this->cache->getItem(self::CACHE_KEY);
-
-        if ($cachedBackendConfig->isHit()) {
-            return $this->backendConfig = $cachedBackendConfig->get();
-        }
-
-        $backendConfig = $this->doProcessConfig($this->originalBackendConfig);
-        $cachedBackendConfig->set($backendConfig);
-        $this->cache->save($cachedBackendConfig);
-
-        return $this->backendConfig = $backendConfig;
-    }
+    
 }

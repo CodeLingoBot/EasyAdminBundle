@@ -51,32 +51,7 @@ class EasyAdminExtension extends Extension
      *
      * @return array
      */
-    private function processConfigFiles(array $configs)
-    {
-        $existingEntityNames = [];
-
-        foreach ($configs as $i => $config) {
-            if (\array_key_exists('entities', $config)) {
-                $processedConfig = [];
-
-                foreach ($config['entities'] as $key => $value) {
-                    $entityConfig = $this->normalizeEntityConfig($key, $value);
-                    $entityName = $this->getUniqueEntityName($key, $entityConfig, $existingEntityNames);
-                    $entityConfig['name'] = $entityName;
-
-                    $processedConfig[$entityName] = $entityConfig;
-
-                    $existingEntityNames[] = $entityName;
-                }
-
-                $config['entities'] = $processedConfig;
-            }
-
-            $configs[$i] = $config;
-        }
-
-        return $configs;
-    }
+    
 
     /**
      * Transforms the two simple configuration formats into the full expanded
@@ -110,20 +85,7 @@ class EasyAdminExtension extends Extension
      *
      * @throws \RuntimeException
      */
-    private function normalizeEntityConfig($entityName, $entityConfig)
-    {
-        // normalize config formats #1 and #2 to use the 'class' option as config format #3
-        if (!\is_array($entityConfig)) {
-            $entityConfig = ['class' => $entityConfig];
-        }
-
-        // if config format #3 is used, ensure that it defines the 'class' option
-        if (!isset($entityConfig['class'])) {
-            throw new \RuntimeException(\sprintf('The "%s" entity must define its associated Doctrine entity class using the "class" option.', $entityName));
-        }
-
-        return $entityConfig;
-    }
+    
 
     /**
      * The name of the entity is included in the URLs of the backend to define
@@ -141,36 +103,10 @@ class EasyAdminExtension extends Extension
      *
      * @return string The entity name transformed to be unique
      */
-    private function getUniqueEntityName($entityName, array $entityConfig, array $existingEntityNames)
-    {
-        // the shortcut config syntax doesn't require to give entities a name
-        if (\is_numeric($entityName)) {
-            $entityClassParts = \explode('\\', $entityConfig['class']);
-            $entityName = \end($entityClassParts);
-        }
-
-        $i = 2;
-        $uniqueName = $entityName;
-        while (\in_array($uniqueName, $existingEntityNames)) {
-            $uniqueName = $entityName.($i++);
-        }
-
-        $entityName = $uniqueName;
-
-        // make sure that the entity name is valid as a PHP method name
-        // (this is required to allow extending the backend with a custom controller)
-        if (!$this->isValidMethodName($entityName)) {
-            throw new \InvalidArgumentException(\sprintf('The name of the "%s" entity contains invalid characters (allowed: letters, numbers, underscores; the first character cannot be a number).', $entityName));
-        }
-
-        return $entityName;
-    }
+    
 
     /**
      * Checks whether the given string is valid as a PHP method name.
      */
-    private function isValidMethodName(string $name): bool
-    {
-        return 0 !== \preg_match('/^-?[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $name);
-    }
+    
 }

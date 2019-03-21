@@ -62,121 +62,15 @@ class AppFixtures extends Fixture
         $manager->flush();
     }
 
-    private function createUsers(): array
-    {
-        $users = [];
+    
 
-        foreach (\range(1, 20) as $i) {
-            $user = new User();
-            $user->setUsername('user'.$i);
-            $user->setEmail('user'.$i.'@example.com');
+    
 
-            $user->setCreatedAtDateTimeImmutable(
-                new \DateTimeImmutable('October 18th 2005 16:27:36')
-            );
-            $user->setCreatedAtDateImmutable(
-                new \DateTimeImmutable('October 18th 2005')
-            );
-            $user->setCreatedAtTimeImmutable(
-                new \DateTimeImmutable('16:27:36')
-            );
+    
 
-            $users[] = $user;
-        }
+    
 
-        return $users;
-    }
-
-    private function createCategories(): array
-    {
-        $parentCategories = [];
-        $subCategories = [];
-
-        foreach (\range(1, 100) as $i) {
-            $category = new Category();
-            $category->setName('Parent Category #'.$i);
-
-            $parentCategories[] = $category;
-        }
-
-        foreach (\range(1, 100) as $i) {
-            $category = new Category();
-            $category->setName('Category #'.$i);
-            $category->setParent($parentCategories[$i - 1]);
-
-            $subCategories[] = $category;
-        }
-
-        return \array_merge($parentCategories, $subCategories);
-    }
-
-    private function createProducts(array $categories): array
-    {
-        $products = [];
-
-        foreach (\range(1, 100) as $i) {
-            $product = new Product();
-            $product->setEnabled($i <= 90 ? true : false);
-            $product->setName($this->getRandomName());
-            $product->setPrice($this->getRandomPrice());
-            $product->setTags($this->getRandomTags());
-            $product->setEan($this->getRandomEan());
-            $product->setCategories($this->getRandomCategories($categories));
-            $product->setDescription($this->getRandomDescription());
-            $product->setHtmlFeatures($this->getRandomHtmlFeatures());
-
-            $products[] = $product;
-        }
-
-        return $products;
-    }
-
-    private function createPurchases(array $users): array
-    {
-        $purchases = [];
-
-        foreach (\range(1, 30) as $i) {
-            $purchase = new Purchase();
-            $purchase->setGuid($this->generateGuid());
-            $purchase->setDeliveryDate(new \DateTime("+$i days"));
-            $purchase->setCreatedAt(new \DateTime("now +$i seconds"));
-            $purchase->setShipping(new \StdClass());
-            $purchase->setDeliveryHour($this->getHour($i));
-            $purchase->setBillingAddress(
-                \json_encode(
-                    [
-                        'line1' => '1234 Main Street',
-                        'line2' => 'Big City, XX 23456',
-                    ]
-                )
-            );
-            $purchase->setBuyer($users[$i % \count($users)]);
-
-            $purchases[] = $purchase;
-        }
-
-        return $purchases;
-    }
-
-    private function createPurchaseItems(array $products, array $purchases): array
-    {
-        $purchaseItems = [];
-
-        foreach (\range(1, 30) as $i) {
-            $numItemsPurchased = \rand(1, 5);
-            foreach (\range(1, $numItemsPurchased) as $j) {
-                $item = new PurchaseItem();
-                $item->setQuantity(\rand(1, 3));
-                $item->setProduct($products[\array_rand($products)]);
-                $item->setTaxRate(0.21);
-                $item->setPurchase($purchases[$i - 1]);
-
-                $purchaseItems[] = $item;
-            }
-        }
-
-        return $purchaseItems;
-    }
+    
 
     public function getRandomTags()
     {
@@ -244,17 +138,7 @@ class AppFixtures extends Fixture
         return (float) \mt_rand(2, 79).'.'.$cents[\array_rand($cents)];
     }
 
-    private function getRandomCategories(array $allCategories)
-    {
-        $categories = [];
-        $numCategories = \rand(1, 4);
-
-        for ($i = 0; $i < $numCategories; ++$i) {
-            $categories[] = $allCategories[\array_rand($allCategories)];
-        }
-
-        return $categories;
-    }
+    
 
     public function getRandomDescription()
     {
@@ -272,21 +156,7 @@ class AppFixtures extends Fixture
         return '<ul><li>'.\implode('</li><li>', \array_slice($this->phrases, 0, $numFeatures)).'</li></ul>';
     }
 
-    private function generateGuid()
-    {
-        return \sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-            \mt_rand(0, 0xffff), \mt_rand(0, 0xffff),
-            \mt_rand(0, 0xffff),
-            \mt_rand(0, 0x0fff) | 0x4000,
-            \mt_rand(0, 0x3fff) | 0x8000,
-            \mt_rand(0, 0xffff), \mt_rand(0, 0xffff), \mt_rand(0, 0xffff)
-        );
-    }
+    
 
-    private function getHour($i)
-    {
-        $date = new \DateTime();
-
-        return $date->setTime($i % 24, 0);
-    }
+    
 }

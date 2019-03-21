@@ -87,46 +87,7 @@ class TemplateConfigPass implements ConfigPassInterface
      *
      * @throws \RuntimeException
      */
-    private function processEntityTemplates(array $backendConfig)
-    {
-        // first, resolve the general template overriding mechanism
-        // 1st level priority: easy_admin.entities.<entityName>.templates.<templateName> config option
-        // 2nd level priority: easy_admin.design.templates.<templateName> config option
-        // 3rd level priority: @EasyAdmin/default/<templateName>.html.twig
-        foreach ($backendConfig['entities'] as $entityName => $entityConfig) {
-            foreach ($this->defaultBackendTemplates as $templateName => $defaultTemplatePath) {
-                $candidateTemplates = [
-                    $entityConfig['templates'][$templateName] ?? '',
-                    $backendConfig['design']['templates'][$templateName] ?? '',
-                    $defaultTemplatePath,
-                ];
-                $templatePath = $this->findFirstExistingTemplate($candidateTemplates);
-
-                if (null === $templatePath) {
-                    throw new \RuntimeException(\sprintf('None of the templates defined for the "%s" fragment of the "%s" entity exists (templates defined: %s).', $templateName, $entityName, \implode(', ', $candidateTemplates)));
-                }
-
-                $entityConfig['templates'][$templateName] = $templatePath;
-            }
-
-            $backendConfig['entities'][$entityName] = $entityConfig;
-        }
-
-        // second, walk through all entity fields to determine their specific template
-        foreach ($backendConfig['entities'] as $entityName => $entityConfig) {
-            foreach (['list', 'show'] as $view) {
-                foreach ($entityConfig[$view]['fields'] as $fieldName => $fieldMetadata) {
-                    // if the field defines its own template, use it. Otherwise, initialize
-                    // it to null because it will be resolved at runtime in the Configurator
-                    $entityConfig[$view]['fields'][$fieldName]['template'] = $fieldMetadata['template'] ?? null;
-                }
-            }
-
-            $backendConfig['entities'][$entityName] = $entityConfig;
-        }
-
-        return $backendConfig;
-    }
+    
 
     /**
      * Determines the templates used to render each backend element when no
@@ -139,26 +100,7 @@ class TemplateConfigPass implements ConfigPassInterface
      *
      * @return array
      */
-    private function processDefaultTemplates(array $backendConfig)
-    {
-        // 1st level priority: easy_admin.design.templates.<templateName> config option
-        // 2nd level priority: @EasyAdmin/default/<templateName>.html.twig
-        foreach ($this->defaultBackendTemplates as $templateName => $defaultTemplatePath) {
-            $candidateTemplates = [
-                $backendConfig['design']['templates'][$templateName] ?? '',
-                $defaultTemplatePath,
-            ];
-            $templatePath = $this->findFirstExistingTemplate($candidateTemplates);
-
-            if (null === $templatePath) {
-                throw new \RuntimeException(\sprintf('None of the templates defined for the global "%s" template of the backend exists (templates defined: %s).', $templateName, \implode(', ', $candidateTemplates)));
-            }
-
-            $backendConfig['design']['templates'][$templateName] = $templatePath;
-        }
-
-        return $backendConfig;
-    }
+    
 
     /**
      * Determines the template used to render each backend element. This is not
@@ -169,88 +111,10 @@ class TemplateConfigPass implements ConfigPassInterface
      *
      * @return array
      */
-    private function processFieldTemplates(array $backendConfig)
-    {
-        foreach ($backendConfig['entities'] as $entityName => $entityConfig) {
-            foreach (['list', 'show'] as $view) {
-                foreach ($entityConfig[$view]['fields'] as $fieldName => $fieldMetadata) {
-                    if (null !== $fieldMetadata['template']) {
-                        continue;
-                    }
-
-                    // needed to add support for immutable datetime/date/time fields
-                    // (which are rendered using the same templates as their non immutable counterparts)
-                    if ('_immutable' === \mb_substr($fieldMetadata['dataType'], -10)) {
-                        $fieldTemplateName = 'field_'.\mb_substr($fieldMetadata['dataType'], 0, -10);
-                    } else {
-                        $fieldTemplateName = 'field_'.$fieldMetadata['dataType'];
-                    }
-
-                    // primary key values are displayed unmodified to prevent common issues
-                    // such as formatting its values as numbers (e.g. `1,234` instead of `1234`)
-                    if ($entityConfig['primary_key_field_name'] === $fieldName) {
-                        $template = $entityConfig['templates']['field_id'];
-                    } elseif (\array_key_exists($fieldTemplateName, $entityConfig['templates'])) {
-                        $template = $entityConfig['templates'][$fieldTemplateName];
-                    } else {
-                        $template = $entityConfig['templates']['label_undefined'];
-                    }
-
-                    $entityConfig[$view]['fields'][$fieldName]['template'] = $template;
-                }
-            }
-
-            $backendConfig['entities'][$entityName] = $entityConfig;
-        }
-
-        return $backendConfig;
-    }
+    
 
     /**
      * @param string[] $templatePaths
      */
-    private function findFirstExistingTemplate(array $templatePaths): ?string
-    {
-        foreach ($templatePaths as $templatePath) {
-            if ('' === $templatePath) {
-                continue;
-            }
-
-            // template name normalization code taken from \Twig_Loader_Filesystem::normalizeName()
-            $templatePath = \preg_replace('#/{2,}#', '/', \str_replace('\\', '/', $templatePath));
-            $namespace = \Twig_Loader_Filesystem::MAIN_NAMESPACE;
-
-            if (isset($templatePath[0]) && '@' === $templatePath[0]) {
-                if (false === $pos = \strpos($templatePath, '/')) {
-                    throw new \LogicException(\sprintf('Malformed namespaced template name "%s" (expecting "@namespace/template_name").', $templatePath));
-                }
-
-                $namespace = \substr($templatePath, 1, $pos - 1);
-            }
-
-            if (!isset($this->existingTemplates[$namespace])) {
-                foreach ($this->twigLoader->getPaths($namespace) as $path) {
-                    $finder = new Finder();
-                    $finder->files()->in($path);
-
-                    foreach ($finder as $templateFile) {
-                        $template = $templateFile->getRelativePathname();
-
-                        if ('\\' === DIRECTORY_SEPARATOR) {
-                            $template = \str_replace('\\', '/', $template);
-                        }
-
-                        if (\Twig_Loader_Filesystem::MAIN_NAMESPACE !== $namespace) {
-                            $template = \sprintf('@%s/%s', $namespace, $template);
-                        }
-                        $this->existingTemplates[$namespace][$template] = true;
-                    }
-                }
-            }
-
-            if (null !== $templatePath && isset($this->existingTemplates[$namespace][$templatePath])) {
-                return $templatePath;
-            }
-        }
-    }
+    
 }

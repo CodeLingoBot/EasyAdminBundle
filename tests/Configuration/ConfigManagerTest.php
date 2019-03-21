@@ -75,20 +75,7 @@ class ConfigManagerTest extends TestCase
      *
      * @return array
      */
-    private function loadConfig($backendConfigFilePath)
-    {
-        $configuration = Yaml::parse(\file_get_contents($backendConfigFilePath));
-
-        // to get the processed config, boot a special Symfony kernel to load
-        // the backend config dynamically
-        include_once __DIR__.'/../Fixtures/App/DynamicConfigLoadingKernel.php';
-        $app = new \DynamicConfigLoadingKernel($configuration['easy_admin']);
-        $app->boot();
-
-        $backendConfig = $app->getContainer()->get('easyadmin.config.manager')->getBackendConfig();
-
-        return $backendConfig;
-    }
+    
 
     /**
      * Utility method because PHP doesn't allow to delete non-empty directories.

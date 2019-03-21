@@ -159,12 +159,5 @@ class EasyAdminFormType extends AbstractType
      *
      * @return \Closure
      */
-    private function getAttributesNormalizer()
-    {
-        return function (Options $options, $value) {
-            return \array_replace([
-                'id' => \sprintf('%s-%s-form', $options['view'], \mb_strtolower($options['entity'])),
-            ], $value);
-        };
-    }
+    
 }

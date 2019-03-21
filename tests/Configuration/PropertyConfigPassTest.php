@@ -144,30 +144,5 @@ class PropertyConfigPassTest extends TestCase
         );
     }
 
-    private function getFormRegistry()
-    {
-        $doctrineTypeGuesser = $this->getMockBuilder('Symfony\Bridge\Doctrine\Form\DoctrineOrmTypeGuesser')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $doctrineTypeGuesser
-            ->method('guessType')->willReturn(
-                new TypeGuess(
-                    'Symfony\Bridge\Doctrine\Form\Type\EntityType',
-                    [
-                        'em' => 'default',
-                        'class' => 'AppBundle\Form\Type\EntityRelationType',
-                        'multiple' => true,
-                    ],
-                    Guess::HIGH_CONFIDENCE
-                )
-            )
-        ;
-
-        $formRegistry = $this->getMockBuilder('Symfony\Component\Form\FormRegistry')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $formRegistry->method('getTypeGuesser')->willReturn($doctrineTypeGuesser);
-
-        return $formRegistry;
-    }
+    
 }

@@ -83,26 +83,12 @@ final class EasyAdminRouter
      *
      * @return array
      */
-    private function getEntityConfigByClass($class)
-    {
-        if (!$config = $this->configManager->getEntityConfigByClass($this->getRealClass($class))) {
-            throw new UndefinedEntityException(['entity_name' => $class]);
-        }
-
-        return $config;
-    }
+    
 
     /**
      * @param string $class
      *
      * @return string
      */
-    private function getRealClass($class)
-    {
-        if (false === $pos = \strrpos($class, '\\'.Proxy::MARKER.'\\')) {
-            return $class;
-        }
-
-        return \substr($class, $pos + Proxy::MARKER_LENGTH + 2);
-    }
+    
 }

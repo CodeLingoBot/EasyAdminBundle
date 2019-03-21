@@ -45,20 +45,5 @@ class ExceptionContext
         return $this->statusCode;
     }
 
-    private function transformIntoTranslationPlaceholders(array $parameters)
-    {
-        $placeholders = [];
-        foreach ($parameters as $key => $value) {
-            if ('%' !== $key[0]) {
-                $key = '%'.$key;
-            }
-            if ('%' !== $key[-1]) {
-                $key .= '%';
-            }
-
-            $placeholders[$key] = $value;
-        }
-
-        return $placeholders;
-    }
+    
 }

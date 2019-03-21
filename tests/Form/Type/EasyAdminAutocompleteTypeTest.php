@@ -186,21 +186,5 @@ class EasyAdminAutocompleteTypeTest extends TypeTestCase
     /**
      * The ConfigManager class is final, so it cannot be mocked easily.
      */
-    private function createConfigManagerMock()
-    {
-        $processedConfig = ['entities' => [
-            'Category' => [
-                'class' => 'AppTestBundle\Entity\UnitTests\Category',
-                'name' => 'Category',
-            ],
-        ]];
-
-        $cache = new ArrayAdapter();
-        // the name must be like the private const ConfigManager::CACHE_KEY
-        $cacheItem = $cache->getItem('easyadmin.processed_config');
-        $cacheItem->set($processedConfig);
-        $cache->save($cacheItem);
-
-        return new ConfigManager([], false, new PropertyAccessor(), $cache);
-    }
+    
 }
